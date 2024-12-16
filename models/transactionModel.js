@@ -1,7 +1,7 @@
 import db from './../config/database.js';
 import { v4 as uuidv4 } from 'uuid';
 
-// Select all transactions
+// Select all transactions from the database
 const getTransactions = async () => {
   try {
     const [rows] = await db.query(
@@ -15,7 +15,7 @@ const getTransactions = async () => {
   }
 };
 
-// Add new transaction
+// Add new transaction to the database
 const addTransaction = async (description, amount, type, categoryId, date) => {
   try {
     const id = uuidv4();
