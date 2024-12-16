@@ -62,9 +62,9 @@ const seedIncomeCategories = async () => {
   const result = [];
   try {
     console.log('Income categories start seeding.');
-    for (let categroy in incomeCategories) {
+    for (let category of incomeCategories) {
       const id = faker.string.uuid();
-      const name = categroy;
+      const name = category;
       await db.query(
         'INSERT INTO categories(id, name, type) VALUES (?, ?, ?)',
         [id, name, 'Income']
@@ -82,9 +82,9 @@ const seedExpenseCategories = async () => {
   const result = [];
   try {
     console.log('Expense categories start seeding.');
-    for (let categroy in expenseCategories) {
+    for (let category of expenseCategories) {
       const id = faker.string.uuid();
-      const name = categroy;
+      const name = category;
       await db.query(
         'INSERT INTO categories(id, name, type) VALUES (?, ?, ?)',
         [id, name, 'Expense']
