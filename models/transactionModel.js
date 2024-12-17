@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 const getTransactions = async () => {
   try {
     const [rows] = await db.query(
-      'SELECT t.id, t.description, t.amount, t.type, c.name AS categroy, t.transaction_date AS date FROM transactions t JOIN categories c ON t.category_id=c.id ORDER BY t.transaction_date DESC'
+      'SELECT t.id, t.description, t.amount, t.type, c.name AS category, t.transaction_date AS date FROM transactions t JOIN categories c ON t.category_id=c.id ORDER BY t.transaction_date DESC'
     );
     return rows.map((row) => {
       return { ...row, amount: Number(row.amount) };
