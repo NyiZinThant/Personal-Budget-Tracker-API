@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
 import db from '../config/database.js';
 const incomeCategories = [
   'Salary/Wages',
@@ -58,6 +59,31 @@ const expenseCategories = [
   'Miscellaneous',
   'other',
 ];
+const seedUsers = async () => {
+  const saltRounds = +process.env.SALT_ROUND || 10;
+  const result = [];
+  try {
+    console.log('Users start seeding.');
+    for (let i = 0; i < 10; i++) {
+      const id = faker.string.uuid();
+      const fullName = faker.person.fullName;
+      const email = faker.internet.email;
+      const dob = faker.date.birthdate;
+      const gender = faker.helpers.arrayElement(['Male', 'Female', 'Other']);
+      const hashedPassword = await bcrypt.hash('password', saltRounds);
+      await db.query(
+        'INSERT INTO users(id, full_name, email, dob, gender, password) VALUES (?, ?, ?, ?, ?, ?)',
+        [id, fullName, email, dob, gender, hashedPassword]
+      );
+      result.push(id);
+    }
+    console.log('Users seeded successfully.');
+    return result;
+  } catch (error) {
+    console.error('Error seeding users: ', error);
+    process.exit(1);
+  }
+};
 const seedIncomeCategories = async () => {
   const result = [];
   try {
@@ -100,6 +126,7 @@ const seedExpenseCategories = async () => {
 };
 
 const seedTransactions = async (
+  usersId,
   incomeCategoriesId,
   ExpenseCategoriesId,
   numIncome,
@@ -113,13 +140,14 @@ const seedTransactions = async (
       const amount = faker.finance.amount({ min: 1000, max: 100000, dec: 2 });
       const type = 'Income';
       const categoryId = faker.helpers.arrayElement(incomeCategoriesId);
+      const userId = faker.helpers.arrayElement(usersId);
       const transactionDate = faker.date.between({
         from: new Date('2020-1-1'),
         to: new Date(),
       });
       await db.query(
-        'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date) VALUES (?, ?, ?, ?, ?, ?)',
-        [id, description, amount, type, categoryId, transactionDate]
+        'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [id, description, amount, type, categoryId, transactionDate, userId]
       );
     }
     console.log('Income transactions seeded successfully.');
@@ -139,9 +167,10 @@ const seedTransactions = async (
         from: new Date('2020-1-1'),
         to: new Date(),
       });
+      const userId = faker.helpers.arrayElement(usersId);
       await db.query(
-        'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date) VALUES (?, ?, ?, ?, ?, ?)',
-        [id, description, amount, type, categoryId, transactionDate]
+        'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [id, description, amount, type, categoryId, transactionDate, userId]
       );
     }
     console.log('Expense transactions seeded successfully.');
@@ -150,8 +179,14 @@ const seedTransactions = async (
     process.exit(1);
   }
 };
-
+const usersId = await seedUsers();
 const incomeCategoriesId = await seedIncomeCategories();
 const expenseCategoriesId = await seedExpenseCategories();
-await seedTransactions(incomeCategoriesId, expenseCategoriesId, 20, 30);
+await seedTransactions(
+  usersId,
+  incomeCategoriesId,
+  expenseCategoriesId,
+  20,
+  30
+);
 process.exit(1);
