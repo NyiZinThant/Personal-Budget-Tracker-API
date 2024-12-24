@@ -124,6 +124,11 @@ const loginUser = [
       res.status(200).json({
         message: 'Login successful',
         token,
+        user: {
+          id: user.id,
+          fullName: user.full_name,
+          email: user.email,
+        },
       });
     } catch (error) {
       error.status = 404;

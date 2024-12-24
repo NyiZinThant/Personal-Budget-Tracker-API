@@ -66,9 +66,9 @@ const seedUsers = async () => {
     console.log('Users start seeding.');
     for (let i = 0; i < 10; i++) {
       const id = faker.string.uuid();
-      const fullName = faker.person.fullName;
-      const email = faker.internet.email;
-      const dob = faker.date.birthdate;
+      const fullName = faker.person.fullName();
+      const email = faker.internet.email();
+      const dob = faker.date.birthdate();
       const gender = faker.helpers.arrayElement(['Male', 'Female', 'Other']);
       const hashedPassword = await bcrypt.hash('password', saltRounds);
       await db.query(
@@ -161,7 +161,7 @@ const seedTransactions = async (
       const id = faker.string.uuid();
       const description = faker.lorem.sentence();
       const amount = faker.finance.amount({ min: 10, max: 10000, dec: 2 });
-      const type = 'Expnese';
+      const type = 'Expense';
       const categoryId = faker.helpers.arrayElement(ExpenseCategoriesId);
       const transactionDate = faker.date.between({
         from: new Date('2020-1-1'),

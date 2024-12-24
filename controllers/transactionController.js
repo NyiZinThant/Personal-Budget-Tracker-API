@@ -5,7 +5,8 @@ import transactionModel from '../models/transactionModel.js';
 // @route GET api/v1/transactions
 const getTransactions = async (req, res, next) => {
   try {
-    const transactions = await transactionModel.getTransactions();
+    const userId = req.user.id;
+    const transactions = await transactionModel.getTransactions(userId);
     res.status(200).json(transactions);
   } catch (error) {
     error.status = 404;
@@ -65,13 +66,15 @@ const addTransaction = [
         );
         throw error;
       }
+      const userId = req.user.id;
       const { description, amount, type, date, category } = req.body;
       await transactionModel.addTransaction(
         description,
         amount,
         type,
         category,
-        date
+        date,
+        userId
       );
       res.sendStatus(201);
     } catch (error) {
