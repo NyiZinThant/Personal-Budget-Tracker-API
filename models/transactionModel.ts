@@ -1,10 +1,18 @@
-import db from './../config/database.js';
+import { RowDataPacket } from 'mysql2';
+import db from '../config/database';
 import { v4 as uuidv4 } from 'uuid';
-
+export interface Transaction {
+  id: string;
+  description: string;
+  amount: string;
+  category: string;
+  transaction_date: string;
+}
+export interface TransactionRow extends RowDataPacket, Transaction {}
 // Select all transactions from the database
-const getTransactions = async (userId) => {
+const getTransactions = async (userId: string) => {
   try {
-    const [rows] = await db.query(
+    const [rows] = await db.query<TransactionRow[]>(
       'SELECT t.id, t.description, t.amount, t.type, c.name AS category, t.transaction_date AS date FROM transactions t JOIN categories c ON t.category_id=c.id WHERE user_id=? ORDER BY t.transaction_date DESC',
       [userId]
     );
@@ -18,12 +26,12 @@ const getTransactions = async (userId) => {
 
 // Add new transaction to the database
 const addTransaction = async (
-  description,
-  amount,
-  type,
-  categoryId,
-  date,
-  userId
+  description: string,
+  amount: number,
+  type: string,
+  categoryId: string,
+  date: Date,
+  userId: string
 ) => {
   try {
     const id = uuidv4();

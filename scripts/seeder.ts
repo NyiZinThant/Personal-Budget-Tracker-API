@@ -60,7 +60,7 @@ const expenseCategories = [
   'other',
 ];
 const seedUsers = async () => {
-  const saltRounds = +process.env.SALT_ROUND || 10;
+  const saltRounds = process.env.SALT_ROUND ? +process.env.SALT_ROUND : 10;
   const result = [];
   try {
     console.log('Users start seeding.');
@@ -126,11 +126,11 @@ const seedExpenseCategories = async () => {
 };
 
 const seedTransactions = async (
-  usersId,
-  incomeCategoriesId,
-  ExpenseCategoriesId,
-  numIncome,
-  numExpense
+  usersId: string[],
+  incomeCategoriesId: string[],
+  ExpenseCategoriesId: string[],
+  numIncome: number,
+  numExpense: number
 ) => {
   try {
     console.log('Income transactions start seeding.');

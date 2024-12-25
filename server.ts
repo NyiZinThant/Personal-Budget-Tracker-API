@@ -1,10 +1,10 @@
 import express from 'express';
-import errorHandler from './middlewares/errorHandler.js';
-import transactionRouter from './routes/transactions.js';
-import categoryRouter from './routes/categories.js';
-import authRouter from './routes/auth.js';
+import errorHandler from './middlewares/errorHandler';
+import transactionRouter from './routes/transactions';
+import categoryRouter from './routes/categories';
+import authRouter from './routes/auth';
 import cors from 'cors';
-import authMiddleware from './middlewares/authMiddleware.js';
+import authMiddleware from './middlewares/authMiddleware';
 const port = process.env.PORT || 3000;
 const app = express();
 

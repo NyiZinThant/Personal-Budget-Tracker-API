@@ -1,14 +1,9 @@
 import mysql from 'mysql2/promise';
-
+const url = process.env.MYSQL_URL || '';
 // mysql database connection
 const connectToDatabase = async () => {
   try {
-    const connection = await mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      port: process.env.MYSQL_PORT,
-      user: process.env.MYSQL_USER,
-      database: process.env.MYSQL_DATABASE,
-    });
+    const connection = await mysql.createConnection(url);
     return connection;
   } catch (error) {
     console.error(`Database connection error: ${error}`);
