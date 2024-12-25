@@ -12,16 +12,6 @@ const registerUser = async (
   next: NextFunction
 ) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const error = new Error(
-        errors
-          .array()
-          .map((err) => err.msg)
-          .join(', ')
-      );
-      throw error;
-    }
     const { fullName, email, dob, gender, password } = req.body;
     const users = await userModel.getUserByEmail(email);
     if (users.length > 0) {
@@ -39,16 +29,6 @@ const registerUser = async (
 // @route GET /api/v1/login
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const error = new Error(
-        errors
-          .array()
-          .map((err) => err.msg)
-          .join(', ')
-      );
-      throw error;
-    }
     const { email, password } = req.body;
     const [user] = await userModel.getUserByEmail(email);
     // incorrect email

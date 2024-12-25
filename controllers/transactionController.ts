@@ -1,4 +1,3 @@
-import { body, validationResult } from 'express-validator';
 import transactionModel from '../models/transactionModel';
 import { NextFunction, Request, Response } from 'express';
 import ExpressError from '../CustomErrors/ExpressError';
