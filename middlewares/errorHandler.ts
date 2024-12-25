@@ -12,6 +12,7 @@ const errorHandler = (
     res
       .status(err?.status || 500)
       .json({ message: err.message, errors: err.errors });
+    return;
   }
 
   res.status(err?.status || 500).json({ message: err.message });
