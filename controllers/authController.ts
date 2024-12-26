@@ -1,4 +1,3 @@
-import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import userModel from '../models/userModel';
 import jwtHelper from '../helpers/jwtHelper';
@@ -13,12 +12,12 @@ const registerUser = async (
 ) => {
   try {
     const { fullName, email, dob, gender, password } = req.body;
-    const users = await userModel.getUserByEmail(email);
-    if (users.length > 0) {
+    const user = await userModel.getUserByEmail(email);
+    if (user) {
       const error = new ExpressError('Email already exists', 409);
       throw error;
     }
-    await userModel.addUser(fullName, email, dob, gender, password);
+    await userModel.addUser(fullName, email, new Date(dob), gender, password);
     res.sendStatus(201);
   } catch (error) {
     if (error instanceof Error) error = new ExpressError(error.message, 404);
@@ -30,7 +29,7 @@ const registerUser = async (
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
-    const [user] = await userModel.getUserByEmail(email);
+    const user = await userModel.getUserByEmail(email);
     // incorrect email
     if (!user) {
       let error = new ExpressError('The email or password is incorrect.', 401);
@@ -42,7 +41,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
       let error = new ExpressError('The email or password is incorrect.', 401);
       throw error;
     }
-    const payload = { id: user.id, fullName: user.fullName };
+    const payload = { id: user.id, fullName: user.full_name };
     const token = jwtHelper.generateToken(payload);
     res.status(200).json({
       message: 'Login successful',

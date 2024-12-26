@@ -1,6 +1,9 @@
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 import db from '../config/database.js';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 const incomeCategories = [
   'Salary/Wages',
   'Freelance/Contract Income',
@@ -65,17 +68,25 @@ const seedUsers = async () => {
   try {
     console.log('Users start seeding.');
     for (let i = 0; i < 10; i++) {
-      const id = faker.string.uuid();
       const fullName = faker.person.fullName();
       const email = faker.internet.email();
       const dob = faker.date.birthdate();
       const gender = faker.helpers.arrayElement(['Male', 'Female', 'Other']);
       const hashedPassword = await bcrypt.hash('password', saltRounds);
-      await db.query(
-        'INSERT INTO users(id, full_name, email, dob, gender, password) VALUES (?, ?, ?, ?, ?, ?)',
-        [id, fullName, email, dob, gender, hashedPassword]
-      );
-      result.push(id);
+      const user = await prisma.users.create({
+        data: {
+          full_name: fullName,
+          email: email,
+          dob: dob,
+          gender: gender,
+          password: hashedPassword,
+        },
+      });
+      // await db.query(
+      //   'INSERT INTO users(id, full_name, email, dob, gender, password) VALUES (?, ?, ?, ?, ?, ?)',
+      //   [id, fullName, email, dob, gender, hashedPassword]
+      // );
+      result.push(user.id);
     }
     console.log('Users seeded successfully.');
     return result;
@@ -88,14 +99,19 @@ const seedIncomeCategories = async () => {
   const result = [];
   try {
     console.log('Income categories start seeding.');
-    for (let category of incomeCategories) {
-      const id = faker.string.uuid();
-      const name = category;
-      await db.query(
-        'INSERT INTO categories(id, name, type) VALUES (?, ?, ?)',
-        [id, name, 'Income']
-      );
-      result.push(id);
+    for (let incomeCategory of incomeCategories) {
+      const name: string = incomeCategory;
+      const category = await prisma.categories.create({
+        data: {
+          name: name,
+          type: 'Income',
+        },
+      });
+      // await db.query(
+      //   'INSERT INTO categories(id, name, type) VALUES (?, ?, ?)',
+      //   [id, name, 'Income']
+      // );
+      result.push(category.id);
     }
     console.log('Income categories seeded successfully.');
     return result;
@@ -108,14 +124,19 @@ const seedExpenseCategories = async () => {
   const result = [];
   try {
     console.log('Expense categories start seeding.');
-    for (let category of expenseCategories) {
-      const id = faker.string.uuid();
-      const name = category;
-      await db.query(
-        'INSERT INTO categories(id, name, type) VALUES (?, ?, ?)',
-        [id, name, 'Expense']
-      );
-      result.push(id);
+    for (let expenseCategory of expenseCategories) {
+      const name = expenseCategory;
+      const category = await prisma.categories.create({
+        data: {
+          name: name,
+          type: 'Expense',
+        },
+      });
+      // await db.query(
+      //   'INSERT INTO categories(id, name, type) VALUES (?, ?, ?)',
+      //   [id, name, 'Expense']
+      // );
+      result.push(category.id);
     }
     console.log('Expense categories seeded successfully.');
     return result;
@@ -145,10 +166,20 @@ const seedTransactions = async (
         from: new Date('2020-1-1'),
         to: new Date(),
       });
-      await db.query(
-        'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [id, description, amount, type, categoryId, transactionDate, userId]
-      );
+      await prisma.transactions.create({
+        data: {
+          description,
+          amount,
+          type,
+          category_id: categoryId,
+          transaction_date: transactionDate,
+          user_id: userId,
+        },
+      });
+      // await db.query(
+      //   'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      //   [id, description, amount, type, categoryId, transactionDate, userId]
+      // );
     }
     console.log('Income transactions seeded successfully.');
   } catch (error) {
@@ -168,10 +199,20 @@ const seedTransactions = async (
         to: new Date(),
       });
       const userId = faker.helpers.arrayElement(usersId);
-      await db.query(
-        'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [id, description, amount, type, categoryId, transactionDate, userId]
-      );
+      await prisma.transactions.create({
+        data: {
+          description,
+          amount,
+          type,
+          category_id: categoryId,
+          transaction_date: transactionDate,
+          user_id: userId,
+        },
+      });
+      // await db.query(
+      //   'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      //   [id, description, amount, type, categoryId, transactionDate, userId]
+      // );
     }
     console.log('Expense transactions seeded successfully.');
   } catch (error) {

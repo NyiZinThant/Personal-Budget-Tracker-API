@@ -1,6 +1,6 @@
-import { RowDataPacket } from 'mysql2';
-import db from '../config/database';
-import { v4 as uuidv4 } from 'uuid';
+import { PrismaClient, TransactionType } from '@prisma/client';
+
+const prisma = new PrismaClient();
 export interface Transaction {
   id: string;
   description: string;
@@ -8,17 +8,31 @@ export interface Transaction {
   category: string;
   transaction_date: string;
 }
-export interface TransactionRow extends RowDataPacket, Transaction {}
 // Select all transactions from the database
 const getTransactions = async (userId: string) => {
   try {
-    const [rows] = await db.query<TransactionRow[]>(
-      'SELECT t.id, t.description, t.amount, t.type, c.name AS category, t.transaction_date AS date FROM transactions t JOIN categories c ON t.category_id=c.id WHERE user_id=? ORDER BY t.transaction_date DESC',
-      [userId]
-    );
-    return rows.map((row) => {
-      return { ...row, amount: Number(row.amount) };
+    const transactions = await prisma.transactions.findMany({
+      where: {
+        user_id: userId,
+      },
+      select: {
+        id: true,
+        description: true,
+        amount: true,
+        type: true,
+        transaction_date: true,
+        categories: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        transaction_date: 'desc',
+      },
     });
+    console.log(transactions);
+    return transactions;
   } catch (error) {
     throw error;
   }
@@ -28,18 +42,23 @@ const getTransactions = async (userId: string) => {
 const addTransaction = async (
   description: string,
   amount: number,
-  type: string,
+  type: TransactionType,
   categoryId: string,
   date: Date,
   userId: string
 ) => {
   try {
-    const id = uuidv4();
-    console.log('add transaction called');
-    const result = await db.query(
-      'INSERT INTO transactions(id, description, amount, type, category_id, transaction_date, user_id) VALUES(?, ?, ?, ?, ?, ?, ?)',
-      [id, description, amount, type, categoryId, date, userId]
-    );
+    const transaction = await prisma.transactions.create({
+      data: {
+        description: description,
+        amount: amount,
+        type: type,
+        category_id: categoryId,
+        transaction_date: date,
+        user_id: userId,
+      },
+    });
+    return transaction;
   } catch (error) {
     throw error;
   }

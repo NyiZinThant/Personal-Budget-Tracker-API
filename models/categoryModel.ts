@@ -1,17 +1,15 @@
-import { RowDataPacket } from 'mysql2';
-import db from '../config/database';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 export interface Category {
   id: string;
   name: string;
 }
-export interface CategoryRow extends RowDataPacket, Category {}
 // select all categories from the database
 const getCategories = async () => {
   try {
-    const [rows] = await db.query<CategoryRow[]>(
-      'SELECT id, name, type FROM categories'
-    );
-    return rows;
+    const categories = await prisma.categories.findMany();
+    return categories;
   } catch (error) {
     throw error;
   }

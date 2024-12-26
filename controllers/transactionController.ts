@@ -40,7 +40,7 @@ const addTransaction = async (
       amount,
       type,
       category,
-      date,
+      new Date(date),
       userId
     );
     res.sendStatus(201);

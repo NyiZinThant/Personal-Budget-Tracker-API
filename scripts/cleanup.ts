@@ -1,12 +1,13 @@
-import db from '../config/database.js';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const cleanUpTodo = async () => {
   try {
-    await db.query('DELETE FROM transactions');
+    await prisma.transactions.deleteMany();
     console.log('Transactions table cleanup success.');
-    await db.query('DELETE FROM users');
+    await prisma.users.deleteMany();
     console.log('Users table cleanup success.');
-    await db.query('DELETE FROM categories');
+    await prisma.users.deleteMany();
     console.log('Categories table cleanup success.');
     process.exit(1);
   } catch (error) {
